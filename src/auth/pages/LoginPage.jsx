@@ -27,18 +27,18 @@ export const LoginPage = () => {
         }
     }, [errorMessage])
 
-    const loginSubmit = (event) => {
+    const loginSubmit = async (event) => {
         event.preventDefault()
-        startLogin({ email: loginEmail, password: loginPassword })
+        await startLogin({ email: loginEmail, password: loginPassword })
     }
 
-    const registerSubmit = (event) => {
+    const registerSubmit = async (event) => {
         event.preventDefault()
         if (registerPassword !== registerPassword2) {
             Swal.fire('Error en el registro', 'Contrasenas no son iguales', 'error')
             return;
         }
-        startRegister({ name: registerName, email: registerEmail, password: registerPassword, registerPassword2 })
+        await startRegister({ name: registerName, email: registerEmail, password: registerPassword, registerPassword2 })
     }
 
     return (

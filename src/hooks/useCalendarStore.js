@@ -2,10 +2,13 @@ import { useSelector, useDispatch } from 'react-redux'
 import {
     onAddNewEvent,
     onDeleteEvent,
+    onLoadEvents,
     onSetActiveEvent,
     onUpdateEvent,
 } from '../store'
 import calendarApi from '../api/calendarApi'
+import { convertDbDateToCalendarDate } from '../helper'
+import Swal from 'sweetalert2'
 
 export const useCalendarStore = () => {
     const dispatch = useDispatch()
@@ -17,16 +20,39 @@ export const useCalendarStore = () => {
     }
 
     const startSavingEvent = async (calendarEvent) => {
-        if (calendarEvent._id) {
-            dispatch(onUpdateEvent({ ...calendarEvent }))
-        } else {
-            const { data } = await calendarApi.post('/events', calendarEvent)
-            dispatch(onAddNewEvent({ ...calendarEvent, id: data.evento.id, user }))
+        try {
+            if (calendarEvent.id) {
+                await calendarApi.put(`/events/${calendarEvent.id}`, calendarEvent)
+                dispatch(onUpdateEvent({ ...calendarEvent, user }))
+            } else {
+                const { data } = await calendarApi.post('/events', calendarEvent)
+                dispatch(onAddNewEvent({ ...calendarEvent, id: data.evento.id, user }))
+            }
+        } catch (err) {
+            console.log(err)
+            Swal.fire('Error al guardar', err.response.data, 'error')
         }
     }
 
-    const startDeletingEvent = async () => {
-        dispatch(onDeleteEvent())
+    const startDeletingEvent = async (calendarId) => {
+        try {
+            await calendarApi.delete(`/events/${calendarId}`)
+            dispatch(onDeleteEvent())
+        } catch (err) {
+            console.log(err)
+            Swal.fire('Error al eliminar', '', 'error')
+        }
+    }
+
+    const startLoadingEvents = async () => {
+        try {
+            const { data } = await calendarApi.get('/events')
+            const eventos = convertDbDateToCalendarDate(data.eventos)
+            dispatch(onLoadEvents(eventos))
+        } catch (err) {
+            console.log('Error cargando los eventos')
+            console.log(err)
+        }
     }
 
     return {
@@ -37,5 +63,6 @@ export const useCalendarStore = () => {
         setActiveEvent,
         startSavingEvent,
         deleteEvent: startDeletingEvent,
+        startLoadingEvents,
     }
 }

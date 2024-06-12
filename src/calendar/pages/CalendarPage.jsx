@@ -2,18 +2,24 @@ import { Calendar } from 'react-big-calendar'
 import { CalendarEvent, CalendarModal, FabAddNew, FabDelete, Navbar } from '../'
 import { localizer, getMessages } from '../../helper'
 import { useState } from 'react'
-import { useCalendarStore, useUiStore } from '../../hooks'
+import { useAuthStore, useCalendarStore, useUiStore } from '../../hooks'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { useEffect } from 'react'
 
 export const CalendarPage = () => {
-  const { events, setActiveEvent } = useCalendarStore()
+  const { user } = useAuthStore()
+  const { events, setActiveEvent, startLoadingEvents } = useCalendarStore()
   const { openDateModal } = useUiStore()
   const [lastView, setLastView] = useState(
     localStorage.getItem('lastView') || 'week'
   )
 
-  const onDoubleClick = (event) => {
+  useEffect(() => {
+    startLoadingEvents()
+  }, [])
+
+  const onDoubleClick = () => {
     openDateModal()
   }
 
@@ -27,8 +33,9 @@ export const CalendarPage = () => {
   }
 
   const eventStyleGetter = (event, start, end, isSelected) => {
+    const isMyEvent = (user.uid === event.user._id) || (user.uid === event.user.uid)
     const style = {
-      backgroundColor: '#34CF7',
+      backgroundColor: isMyEvent ? '#34CF7' : '#465660',
       borderRadius: '0px',
       opacity: 0.8,
       color: 'white',

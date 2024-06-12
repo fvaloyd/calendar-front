@@ -5,7 +5,7 @@ export const FabDelete = () => {
   const { isDateModalOpen } = useUiStore()
 
   const handleDelete = () => {
-    deleteEvent()
+    deleteEvent(activeEvent.id)
   }
 
   return (
@@ -14,7 +14,7 @@ export const FabDelete = () => {
       onClick={handleDelete}
       style={{
         display:
-          hasEventSelected && !isDateModalOpen && !!activeEvent._id
+          hasEventSelected && !isDateModalOpen && !!activeEvent.id
             ? ''
             : 'none',
       }}

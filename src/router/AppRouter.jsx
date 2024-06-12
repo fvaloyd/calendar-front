@@ -13,7 +13,7 @@ export const AppRouter = () => {
     checkAuthToken()
   }, [])
 
-  if (status === 'Checking') {
+  if (status === 'checking') {
     return (
       <h3>Cargando...</h3>
     )
